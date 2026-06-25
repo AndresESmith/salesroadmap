@@ -1,0 +1,1024 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>THE DIAL ROOM — Web-Design Cold-Calling Operator's Manual</title>
+<style>
+  :root{
+    --ink:#101319;
+    --ink-2:#0B0D12;
+    --panel:#181C24;
+    --panel-2:#1F242E;
+    --line:#2A313B;
+    --line-soft:#222932;
+    --brass:#E7A33C;
+    --brass-2:#F2B85A;
+    --brass-dim:#9C7228;
+    --steel:#82A0C0;
+    --steel-dim:#4E627B;
+    --win:#5BB97E;
+    --heat:#D9685F;
+    --text:#ECEAE3;
+    --muted:#9AA0AB;
+    --faint:#6A7280;
+    --display:'Helvetica Neue',Helvetica,Arial,system-ui,sans-serif;
+    --body:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,'SF Mono','Cascadia Code',Menlo,Consolas,'Roboto Mono',monospace;
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--ink);color:var(--text);
+    font-family:var(--body);font-size:16px;line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--brass);text-decoration:none}
+  a:hover{text-decoration:underline}
+  ::selection{background:var(--brass);color:#1a1205}
+
+  /* ---------- Layout shell ---------- */
+  .shell{display:flex;min-height:100vh}
+  .sidebar{
+    width:264px;flex:0 0 264px;position:sticky;top:0;height:100vh;
+    background:var(--ink-2);border-right:1px solid var(--line);
+    display:flex;flex-direction:column;overflow-y:auto;
+  }
+  .brand{padding:22px 22px 18px;border-bottom:1px solid var(--line)}
+  .brand .live{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--heat);display:flex;align-items:center;gap:7px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--heat);box-shadow:0 0 0 0 rgba(217,104,95,.5);animation:pulse 2.4s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(217,104,95,.45)}70%{box-shadow:0 0 0 9px rgba(217,104,95,0)}100%{box-shadow:0 0 0 0 rgba(217,104,95,0)}}
+  .brand h1{font-family:var(--display);font-weight:800;font-size:21px;letter-spacing:.02em;margin:11px 0 3px;line-height:1.05}
+  .brand .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--faint);text-transform:uppercase}
+
+  nav.pages{padding:12px 12px 8px;flex:1}
+  .pages a{
+    display:flex;align-items:baseline;gap:12px;
+    padding:10px 12px;border-radius:7px;color:var(--muted);
+    font-size:14.5px;line-height:1.25;margin-bottom:2px;border:1px solid transparent;
+  }
+  .pages a .num{font-family:var(--mono);font-size:11px;color:var(--faint);min-width:20px}
+  .pages a:hover{background:var(--panel);color:var(--text);text-decoration:none}
+  .pages a.active{background:var(--panel-2);color:var(--text);border-color:var(--line)}
+  .pages a.active .num{color:var(--brass)}
+  .pages a.active .lbl{box-shadow:inset 0 -2px 0 0 var(--brass)}
+  .side-foot{padding:16px 22px 24px;border-top:1px solid var(--line);font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.06em}
+
+  /* ---------- Main ---------- */
+  main{flex:1;min-width:0}
+  .page{display:none;padding:0}
+  .page.active{display:block;animation:fade .35s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .wrap{max-width:880px;margin:0 auto;padding:56px 40px 90px}
+
+  /* ---------- Mobile topbar ---------- */
+  .topbar{display:none;position:sticky;top:0;z-index:40;background:var(--ink-2);
+    border-bottom:1px solid var(--line);padding:13px 18px;align-items:center;justify-content:space-between}
+  .topbar .tb-brand{font-family:var(--display);font-weight:800;font-size:16px;letter-spacing:.02em}
+  .topbar .tb-brand span{color:var(--brass)}
+  .menu-btn{font-family:var(--mono);font-size:12px;letter-spacing:.1em;background:var(--panel-2);
+    border:1px solid var(--line);color:var(--text);padding:8px 13px;border-radius:6px;cursor:pointer}
+  .scrim{display:none;position:fixed;inset:0;background:rgba(5,6,9,.6);z-index:45}
+
+  /* ---------- Typo / structural devices ---------- */
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin:0 0 16px;display:flex;align-items:center;gap:10px}
+  .eyebrow::before{content:"";width:26px;height:1px;background:var(--brass);opacity:.6}
+  h2.title{font-family:var(--display);font-weight:800;font-size:clamp(30px,5vw,46px);line-height:1.03;letter-spacing:-.01em;margin:0 0 14px}
+  .lede{font-size:18px;color:var(--muted);max-width:64ch;margin:0 0 8px}
+  h3{font-family:var(--display);font-weight:800;font-size:23px;letter-spacing:.01em;margin:46px 0 6px;padding-top:0}
+  h3 .h3num{font-family:var(--mono);font-size:13px;color:var(--brass);margin-right:10px;font-weight:500}
+  h4{font-family:var(--display);font-weight:700;font-size:17px;margin:30px 0 6px;letter-spacing:.01em}
+  p{margin:12px 0}
+  .muted{color:var(--muted)}
+  strong{color:#fff;font-weight:700}
+  em{color:var(--brass-2);font-style:normal;font-weight:600}
+  hr.rule{border:0;border-top:1px solid var(--line);margin:48px 0}
+
+  ul,ol{margin:14px 0;padding-left:0;list-style:none}
+  ul li,ol li{position:relative;padding:5px 0 5px 28px;margin:0}
+  ul li::before{content:"";position:absolute;left:6px;top:14px;width:7px;height:1px;background:var(--brass)}
+  ol{counter-reset:ol}
+  ol li{counter-increment:ol}
+  ol li::before{content:counter(ol);position:absolute;left:0;top:6px;font-family:var(--mono);font-size:12px;color:var(--brass);background:var(--panel-2);border:1px solid var(--line);width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center}
+
+  /* ---------- Hero funnel ---------- */
+  .hero{padding:64px 40px 30px;max-width:1040px;margin:0 auto}
+  .hero .h-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+  .hero h2.title{font-size:clamp(34px,5.4vw,58px)}
+  .funnel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 22px 18px}
+  .funnel .fh{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--faint);text-transform:uppercase;display:flex;justify-content:space-between;margin-bottom:16px}
+  .frow{display:flex;align-items:center;gap:14px;margin:0 0 10px}
+  .frow .bar{height:38px;border-radius:6px;display:flex;align-items:center;padding:0 14px;font-family:var(--mono);font-weight:600;color:#1a1205;font-size:13px;letter-spacing:.04em;white-space:nowrap;overflow:hidden}
+  .frow .meta{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap}
+  .frow .meta b{color:var(--text)}
+  .b1{width:100%;background:linear-gradient(90deg,var(--brass-2),var(--brass))}
+  .b2{width:80%;background:linear-gradient(90deg,var(--brass),var(--brass-dim))}
+  .b3{width:58%;background:linear-gradient(90deg,#C98F38,#a9742a)}
+  .b4{width:34%;background:linear-gradient(90deg,#9c7a3e,#7d6230);color:#f0e8d6}
+  .b5{width:16%;background:linear-gradient(90deg,var(--win),#3f8e5e);color:#06140c}
+
+  /* ---------- Stat strip ---------- */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:38px 0 8px}
+  .stat{background:var(--panel);padding:20px 18px}
+  .stat .n{font-family:var(--mono);font-weight:600;font-size:26px;color:var(--brass);letter-spacing:-.01em}
+  .stat .l{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.3}
+
+  /* ---------- Cards / callouts ---------- */
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin:20px 0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .callout{border-left:3px solid var(--brass);background:linear-gradient(90deg,rgba(231,163,60,.07),transparent);padding:16px 20px;border-radius:0 10px 10px 0;margin:22px 0}
+  .callout.heat{border-left-color:var(--heat);background:linear-gradient(90deg,rgba(217,104,95,.08),transparent)}
+  .callout.win{border-left-color:var(--win);background:linear-gradient(90deg,rgba(91,185,126,.08),transparent)}
+  .callout .ct{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass);margin-bottom:6px}
+  .callout.heat .ct{color:var(--heat)}
+  .callout.win .ct{color:var(--win)}
+  .callout p:first-of-type{margin-top:0}
+  .callout p:last-child{margin-bottom:0}
+
+  /* ---------- Banned / use words chips ---------- */
+  .wordcols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+  .wordbox{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+  .wordbox h5{margin:0 0 12px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+  .wordbox.ban h5{color:var(--heat)}
+  .wordbox.use h5{color:var(--win)}
+  .chips{display:flex;flex-wrap:wrap;gap:7px}
+  .chip{font-size:13px;padding:5px 11px;border-radius:30px;border:1px solid var(--line);background:var(--panel-2)}
+  .ban .chip{color:var(--heat);border-color:rgba(217,104,95,.35)}
+  .use .chip{color:var(--win);border-color:rgba(91,185,126,.35)}
+
+  /* ---------- Beats / steps ---------- */
+  .beats{margin:22px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .beat{display:flex;gap:16px;padding:16px 20px;border-bottom:1px solid var(--line-soft);background:var(--panel)}
+  .beat:last-child{border-bottom:0}
+  .beat .bn{font-family:var(--mono);font-size:13px;color:var(--brass);min-width:26px;padding-top:2px}
+  .beat .bt{font-weight:700;color:#fff}
+  .beat .bd{color:var(--muted);font-size:14.5px;margin-top:2px}
+
+  /* ---------- Transcript / script console (SIGNATURE) ---------- */
+  .script{background:var(--ink-2);border:1px solid var(--line);border-radius:12px;margin:18px 0;overflow:hidden}
+  .script-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px;background:linear-gradient(180deg,var(--panel-2),var(--panel));border-bottom:1px solid var(--line)}
+  .script-head .st{font-family:var(--display);font-weight:700;font-size:14.5px;letter-spacing:.01em}
+  .script-head .rec{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--heat);display:flex;align-items:center;gap:6px;flex:0 0 auto}
+  .script-head .rec::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--heat)}
+  .script-body{padding:14px 16px}
+  .line{display:flex;gap:12px;padding:6px 0;align-items:flex-start}
+  .line .who{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;padding:3px 7px;border-radius:5px;flex:0 0 auto;margin-top:2px;min-width:48px;text-align:center}
+  .line.you .who{color:var(--brass);background:rgba(231,163,60,.1);border:1px solid rgba(231,163,60,.3)}
+  .line.them .who{color:var(--steel);background:rgba(130,160,192,.1);border:1px solid rgba(130,160,192,.3)}
+  .line.cue .who{color:var(--faint);background:transparent;border:1px dashed var(--line)}
+  .line .say{flex:1;font-size:15px;line-height:1.55}
+  .line.them .say{color:var(--steel);font-style:italic}
+  .line.cue .say{color:var(--faint);font-size:13px;font-style:italic}
+  .line .say em{color:var(--brass-2)}
+  .script-note{border-top:1px solid var(--line-soft);padding:11px 16px;font-size:13px;color:var(--muted);background:var(--panel);display:flex;gap:9px}
+  .script-note::before{content:"WHY";font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;color:var(--brass);border:1px solid var(--line);border-radius:4px;padding:2px 6px;height:fit-content;margin-top:1px;flex:0 0 auto}
+
+  /* ---------- Objection table ---------- */
+  .obj{border:1px solid var(--line);border-radius:12px;margin:18px 0;overflow:hidden;background:var(--panel)}
+  .obj .oh{padding:13px 18px;background:var(--panel-2);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+  .obj .oh .tag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--heat);border:1px solid rgba(217,104,95,.35);border-radius:5px;padding:3px 7px;flex:0 0 auto}
+  .obj .oh .q{font-style:italic;color:#fff;font-size:15.5px}
+  .obj .ob{padding:14px 18px}
+  .obj .reframe{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--brass);text-transform:uppercase;margin:0 0 8px}
+  .obj .resp{font-size:15px;line-height:1.55}
+  .obj .resp .you-tag{font-family:var(--mono);font-size:10px;color:var(--brass);letter-spacing:.08em;margin-right:6px}
+
+  /* ---------- Pricing tiers ---------- */
+  .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0}
+  .tier{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 20px;display:flex;flex-direction:column}
+  .tier.rec{border-color:var(--brass);box-shadow:0 0 0 1px var(--brass),0 14px 40px -20px rgba(231,163,60,.5);position:relative}
+  .tier.rec::before{content:"STEER HERE";position:absolute;top:-10px;left:20px;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;background:var(--brass);color:#1a1205;padding:3px 9px;border-radius:5px}
+  .tier .tname{font-family:var(--display);font-weight:800;font-size:18px}
+  .tier .tsub{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;margin-top:2px}
+  .tier .price{font-family:var(--mono);font-weight:600;font-size:27px;color:var(--brass);margin:14px 0 2px}
+  .tier.rec .price{color:var(--brass-2)}
+  .tier .punit{font-size:12px;color:var(--faint);margin-bottom:12px}
+  .tier ul{margin:0;flex:1}
+  .tier ul li{font-size:13.5px;padding:4px 0 4px 22px;color:var(--muted)}
+  .tier ul li::before{top:12px;width:6px}
+  .tier .who-for{margin-top:14px;padding-top:13px;border-top:1px solid var(--line-soft);font-size:12.5px;color:var(--faint)}
+
+  /* ---------- Scripts library nav chips ---------- */
+  .libnav{position:sticky;top:0;z-index:20;background:var(--ink);padding:18px 0 14px;margin:-8px 0 8px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px}
+  .libnav a{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;padding:7px 13px;border:1px solid var(--line);border-radius:30px;background:var(--panel);color:var(--muted)}
+  .libnav a:hover{color:var(--text);border-color:var(--brass-dim);text-decoration:none}
+  .libsec{padding-top:18px;margin-top:18px}
+  .libsec:first-of-type{margin-top:6px}
+  .sec-label{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin:8px 0 0;display:flex;align-items:center;gap:10px}
+  .sec-label::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* ---------- Calculator ---------- */
+  .calc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;margin:24px 0}
+  .calc .crow{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:14px 0}
+  .calc label{font-size:14px;color:var(--muted)}
+  .calc .cval{font-family:var(--mono);font-size:15px;color:var(--brass);min-width:64px;text-align:right}
+  .calc input[type=range]{flex:1;accent-color:var(--brass);height:4px;max-width:340px}
+  .calc input[type=number]{font-family:var(--mono);background:var(--ink-2);border:1px solid var(--line);color:var(--brass);border-radius:7px;padding:7px 10px;width:90px;font-size:15px}
+  .calc-out{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:20px}
+  .calc-out .co{background:var(--ink-2);padding:16px 14px;text-align:center}
+  .calc-out .co .cn{font-family:var(--mono);font-weight:600;font-size:24px;color:var(--brass)}
+  .calc-out .co.win .cn{color:var(--win)}
+  .calc-out .co .cl{font-size:11.5px;color:var(--muted);margin-top:3px}
+
+  .foot{border-top:1px solid var(--line);padding:30px 40px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.06em;max-width:880px;margin:0 auto}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:920px){
+    .hero .h-grid{grid-template-columns:1fr;gap:30px}
+    .tiers{grid-template-columns:1fr}
+    .tier.rec{order:-1}
+  }
+  @media (max-width:780px){
+    .topbar{display:flex}
+    .scrim.open{display:block}
+    .sidebar{position:fixed;left:0;top:0;z-index:50;transform:translateX(-100%);transition:transform .26s ease;width:280px;flex-basis:280px}
+    .sidebar.open{transform:none}
+    .wrap{padding:34px 20px 70px}
+    .hero{padding:34px 20px 10px}
+    .stats{grid-template-columns:1fr 1fr}
+    .grid2,.wordcols{grid-template-columns:1fr}
+    .calc-out{grid-template-columns:1fr}
+    .line{flex-wrap:wrap}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  }
+  :focus-visible{outline:2px solid var(--brass);outline-offset:2px;border-radius:4px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-brand">THE DIAL<span>ROOM</span></div>
+  <button class="menu-btn" id="menuBtn" aria-label="Open menu">MENU ▸</button>
+</div>
+<div class="scrim" id="scrim"></div>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="live"><span class="dot"></span> LINE OPEN · 21-DAY PROGRAM</div>
+      <h1>THE DIAL ROOM</h1>
+      <div class="tag">Web-Design Cold-Calling // Operator's Manual</div>
+    </div>
+    <nav class="pages" id="nav">
+      <a data-page="overview" class="active"><span class="num">00</span><span class="lbl">Briefing</span></a>
+      <a data-page="block1"><span class="num">01</span><span class="lbl">Knowledge Base</span></a>
+      <a data-page="block2"><span class="num">02</span><span class="lbl">Practice Framework</span></a>
+      <a data-page="block3"><span class="num">03</span><span class="lbl">Execution Routine</span></a>
+      <a data-page="meeting"><span class="num">04</span><span class="lbl">The Meeting</span></a>
+      <a data-page="pricing"><span class="num">05</span><span class="lbl">Pricing Playbook</span></a>
+      <a data-page="scripts"><span class="num">06</span><span class="lbl">Scripts Library</span></a>
+    </nav>
+    <div class="side-foot">DIALS &gt; CONNECTS &gt; CLOSES<br>Win the input. Detach from the output.</div>
+  </aside>
+
+  <main>
+    <!-- ====================== 00 OVERVIEW ====================== -->
+    <section class="page active" data-page="overview">
+      <div class="hero">
+        <div class="h-grid">
+          <div>
+            <div class="eyebrow">Operator's Manual</div>
+            <h2 class="title">Zero dials to elite closer in 21 days.</h2>
+            <p class="lede">A high-volume, tactical roadmap for selling web design &amp; development to small businesses over the phone. No philosophy, no filler — just the mechanics, the drills, and the numbers.</p>
+          </div>
+          <div class="funnel">
+            <div class="fh"><span>THE FUNNEL</span><span>BEGINNER BENCHMARK</span></div>
+            <div class="frow"><div class="bar b1">DIALS</div><div class="meta">100</div></div>
+            <div class="frow"><div class="bar b2">CONNECTS</div><div class="meta"><b>~20</b> · 20%</div></div>
+            <div class="frow"><div class="bar b3">PITCHES</div><div class="meta"><b>~10</b> · 50%</div></div>
+            <div class="frow"><div class="bar b4">MEETINGS</div><div class="meta"><b>~1–2</b> · 15%</div></div>
+            <div class="frow"><div class="bar b5">CLOSE</div><div class="meta"><b>multi-day</b></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wrap" style="padding-top:24px">
+        <div class="callout heat">
+          <div class="ct">Read this before anything else</div>
+          <p style="margin-bottom:0"><strong>Your list is 50% of your results.</strong> Great calling against a bad list loses to mediocre calling against a great list. Everything in this manual assumes you are calling businesses that <em>live or die on local customers finding them online</em> — and that you've flagged a specific, real problem on each one before you dial. Skip the list work and the best script on earth won't save you.</p>
+        </div>
+
+        <h3><span class="h3num">↳</span>The 21-day arc</h3>
+        <div class="beats">
+          <div class="beat"><div class="bn">01</div><div><div class="bt">Days 1–7 · Knowledge Base</div><div class="bd">Learn the exact mechanics. Build a 50-prospect list. Memorize the script out loud. You are not dialing yet — but you should want to by Day 4.</div></div></div>
+          <div class="beat"><div class="bn">02</div><div><div class="bt">Days 8–14 · Practice Framework</div><div class="bd">Drill solo, record-and-roast, make the 4 core objections boring. 20–30 low-stakes live dials a day to feel the heat.</div></div></div>
+          <div class="beat"><div class="bn">03</div><div><div class="bt">Days 15+ · Execution Routine</div><div class="bd">80→150+ dials/day in batched power hours. Track the funnel daily. Survive the rejection by controlling the input.</div></div></div>
+          <div class="beat"><div class="bn">04</div><div><div class="bt">The Meeting + Pricing</div><div class="bd">The dial books the meeting. The meeting earns the money. Discovery, the on-screen reveal, the close, and how to price without flinching.</div></div></div>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><div class="n">50</div><div class="l">Qualified prospects before your first dial</div></div>
+          <div class="stat"><div class="n">200–400</div><div class="l">Dials a beginner takes for their first close</div></div>
+          <div class="stat"><div class="n">2×</div><div class="l">Power hours a day, no email, no breaks</div></div>
+          <div class="stat"><div class="n">5s</div><div class="l">To hook the owner before the shield goes up</div></div>
+        </div>
+
+        <h3><span class="h3num">↳</span>How to use this site</h3>
+        <p>Work the blocks in order — they're built to stack. Once you're live, the <a href="#" data-jump="scripts">Scripts Library</a> is your daily reference; the <a href="#" data-jump="meeting">Meeting</a> and <a href="#" data-jump="pricing">Pricing</a> pages are what you open the night before a booked call. Every script here is a <em>skeleton</em> — say it like a human, adapt it to the real problem you spotted, never read it like a robot.</p>
+      </div>
+    </section>
+
+    <!-- ====================== 01 KNOWLEDGE BASE ====================== -->
+    <section class="page" data-page="block1">
+      <div class="wrap">
+        <div class="eyebrow">Block 01 · Days 1–7</div>
+        <h2 class="title">The Knowledge Base</h2>
+        <p class="lede">The exact mechanics of a web-design cold call. 2 hours of study + list-building, 1 hour memorizing the script out loud. No dialing yet.</p>
+
+        <h3><span class="h3num">A</span>Build the target list (Days 1–2)</h3>
+        <p>The best prospect is a business that (a) depends on local customers finding them and (b) has <strong>no website, an ugly/broken one, or one that isn't mobile-friendly.</strong></p>
+        <p>Hunt these verticals: home services (HVAC, plumbing, roofing, electrical, landscaping), restaurants, dentists &amp; medical, real estate, gyms &amp; studios, salons &amp; spas, auto shops, attorneys.</p>
+        <p>Google <em>"[service] near [your town]"</em> and nearby towns, open each Google Business Profile, and flag the ones with no website link, a Facebook page used as a website, or a 2012-era site that breaks on your phone. Pull: business name, owner's first name (from the profile, reviews, or "About" page), phone, and the <strong>one specific problem you spotted.</strong></p>
+        <div class="callout"><div class="ct">Target</div><p style="margin-bottom:0">50 qualified prospects, each with a real flaw noted, before you ever pick up the phone.</p></div>
+
+        <h3><span class="h3num">B</span>Bypassing the gatekeeper</h3>
+        <p>For true SMBs the owner often answers directly — this is a smaller wall than people fear. When there <em>is</em> a gatekeeper:</p>
+        <ul>
+          <li><strong>Sound like a peer, not a vendor.</strong> Lower your energy, slow down, use the first name: <em>"Hey, is Mike around?"</em> Salespeople over-explain; insiders don't.</li>
+          <li><strong>Assume the transfer, don't ask permission.</strong> "Can you put me through to Mike?" beats "Is it possible to maybe speak with whoever handles the website?"</li>
+          <li><strong>If asked "what's this regarding?"</strong> — be honest but low-stakes: "It's about his Google listing — I'll only need him a sec." Never say "I'm calling to sell," never lie.</li>
+          <li><strong>Timing beats tactics.</strong> Call before 8:30am or after 5pm, when gatekeepers are gone and the owner answers their own phone.</li>
+        </ul>
+
+        <h3><span class="h3num">C</span>The first-5-seconds hook</h3>
+        <p>The opener's only job is to <strong>buy you the next 20 seconds.</strong> The highest-converting move is the <em>honest interrupt</em> — name the elephant before they do and their defenses collapse:</p>
+        <div class="script">
+          <div class="script-head"><span class="st">The Honest Interrupt</span><span class="rec">REC</span></div>
+          <div class="script-body">
+            <div class="line you"><span class="who">YOU</span><span class="say">"Hey Mike — full disclosure, this is a cold call. You can hang up, or give me 30 seconds and then decide. Fair?"</span></div>
+          </div>
+          <div class="script-note">That "Fair?" earns a micro-yes, and a yes lowers resistance. You've removed the exact thing their brain was bracing for — so they relax. Never open with fake-warm "How are you today??"; it's the tell of every telemarketer.</div>
+        </div>
+
+        <h3><span class="h3num">D</span>Anatomy of the pitch — the 6 beats</h3>
+        <div class="beats">
+          <div class="beat"><div class="bn">1</div><div><div class="bt">Permission opener</div><div class="bd">The honest interrupt above.</div></div></div>
+          <div class="beat"><div class="bn">2</div><div><div class="bt">Reason for the call — specific to THEM</div><div class="bd">"I was looking at [their type] businesses in [town] and pulled up yours…"</div></div></div>
+          <div class="beat"><div class="bn">3</div><div><div class="bt">The observation (the problem)</div><div class="bd">The specific flaw you flagged. Specificity = credibility.</div></div></div>
+          <div class="beat"><div class="bn">4</div><div><div class="bt">The stakes</div><div class="bd">What it's costing them, in their language — lost calls, customers going to a competitor.</div></div></div>
+          <div class="beat"><div class="bn">5</div><div><div class="bt">The micro-offer</div><div class="bd">NOT "buy a website." Small ask: "15 minutes to show you exactly what I found and what your competitors are doing."</div></div></div>
+          <div class="beat"><div class="bn">6</div><div><div class="bt">Book the meeting</div><div class="bd">Propose a specific time. The close of a cold call is a <em>booked appointment</em>, never a sale.</div></div></div>
+        </div>
+
+        <h3><span class="h3num">E</span>The psychology of selling websites</h3>
+        <p>Business owners do not buy websites. They buy <strong>more customers, more credibility, and not-losing to the competitor down the street.</strong> Every word lives in their world, never yours.</p>
+        <div class="wordcols">
+          <div class="wordbox ban">
+            <h5>✕ Banned words</h5>
+            <div class="chips"><span class="chip">responsive</span><span class="chip">CMS</span><span class="chip">framework</span><span class="chip">SEO-optimized</span><span class="chip">UX</span><span class="chip">"beautiful design"</span><span class="chip">modern</span><span class="chip">clean</span></div>
+          </div>
+          <div class="wordbox use">
+            <h5>✓ Their words</h5>
+            <div class="chips"><span class="chip">show up on Google</span><span class="chip">phone rings more</span><span class="chip">look more legit</span><span class="chip">stop losing to competitors</span><span class="chip">more jobs</span><span class="chip">more bookings</span></div>
+          </div>
+        </div>
+        <div class="callout win">
+          <div class="ct">Your strongest weapon: the ROI frame</div>
+          <p>Anchor to <strong>one customer</strong>: "What's one new roofing job / patient / table booking worth to you?" When they say $400 or $8,000, the website stops being a cost — it's a machine that needs to produce ~2 of those to pay for itself. You're not selling a $2,500 site; you're selling a $400-job multiplier.</p>
+        </div>
+        <div class="callout heat">
+          <div class="ct">Loss aversion beats gain</div>
+          <p style="margin-bottom:0">"When someone's pipe bursts at 9pm and they google 'plumber in [town],' you don't show up — [competitor] does, and they call <em>him</em>" hits far harder than "a website will grow your business."</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== 02 PRACTICE ====================== -->
+    <section class="page" data-page="block2">
+      <div class="wrap">
+        <div class="eyebrow">Block 02 · Days 8–14</div>
+        <h2 class="title">The Practice Framework</h2>
+        <p class="lede">Make the script unconscious and the objections boring. Limited real dials (20–30/day); the core is drilling. Reps now = composure later.</p>
+
+        <h3><span class="h3num">A</span>Daily drilling protocol — 90 min</h3>
+        <div class="beats">
+          <div class="beat"><div class="bn">15m</div><div><div class="bt">Mirror reps</div><div class="bd">Full script out loud to a mirror, 10×. Watch your face — relaxed, not intense.</div></div></div>
+          <div class="beat"><div class="bn">20m</div><div><div class="bt">Record-and-roast</div><div class="bd">Record yourself on voice memo. Play it back. You'll hate it — good. Mark every "um," every rushed line.</div></div></div>
+          <div class="beat"><div class="bn">30m</div><div><div class="bt">Objection ladders</div><div class="bd">Drill each of the 4 core objections until the comeback is reflexive — no thinking.</div></div></div>
+          <div class="beat"><div class="bn">25m</div><div><div class="bt">Live mini-block</div><div class="bd">20–30 real low-stakes dials to feel the heat. Practice, not performance.</div></div></div>
+          <div class="beat"><div class="bn">+</div><div><div class="bt">Hostile roleplay</div><div class="bd">Have a friend (or a chatbot prompted as a hostile owner) throw objections at random. Randomness builds real composure.</div></div></div>
+        </div>
+
+        <h3><span class="h3num">B</span>The 4 core objections — reflex responses</h3>
+        <p class="muted">The universal rule: <strong>don't argue, ask a question that reframes.</strong> A statement invites a fight; a question makes them think. (Full bank of 16+ is on the <a href="#" data-jump="scripts">Scripts page</a>.)</p>
+
+        <div class="obj">
+          <div class="oh"><span class="tag">OBJ 01</span><span class="q">"We already have a website."</span></div>
+          <div class="ob">
+            <div class="reframe">Reframe: from "do you have one" → "is it actually working"</div>
+            <div class="resp"><span class="you-tag">YOU</span>"That's actually why I called — when's the last time that site brought you a customer? Do me a favor, pull it up on your phone right now. Does it look right? Most owners haven't seen their own site on a phone in years — and that's where 70% of your customers are looking."</div>
+          </div>
+        </div>
+        <div class="obj">
+          <div class="oh"><span class="tag">OBJ 02</span><span class="q">"We don't need a website."</span></div>
+          <div class="ob">
+            <div class="reframe">Reframe: make them picture the customer who walked away</div>
+            <div class="resp"><span class="you-tag">YOU</span>"Totally fair — a lot of owners feel that way. Quick question though: when someone hears about you and wants to check you out before they call, where do they look? Right — they google you. And right now what they find is [nothing / a half-empty Facebook page]. Your competitors are catching those people."</div>
+          </div>
+        </div>
+        <div class="obj">
+          <div class="oh"><span class="tag">OBJ 03</span><span class="q">"We don't have the budget."</span></div>
+          <div class="ob">
+            <div class="reframe">Budget objection = value not established. Back up, don't discount.</div>
+            <div class="resp"><span class="you-tag">YOU</span>"I hear you, and I'd never ask you to spend a dime on something that doesn't pay you back. So let me ask — what's one new job worth to you? If a site brought you even <em>two</em> of those a month, would the math work? That's all I'm trying to show you in those 15 minutes."</div>
+          </div>
+        </div>
+        <div class="obj">
+          <div class="oh"><span class="tag">OBJ 04</span><span class="q">"Just send me an email."</span></div>
+          <div class="ob">
+            <div class="reframe">90% a polite brush-off. Convert it to a micro-commitment.</div>
+            <div class="resp"><span class="you-tag">YOU</span>"Happy to — but real talk, you've got 40 emails you haven't opened and mine becomes 41. So I won't waste your time with that. Give me 10 minutes Thursday morning, I'll walk you through exactly what I found on a screen-share, and if it's not useful you never hear from me again. Does 9 or 11 work better?"</div>
+          </div>
+        </div>
+
+        <h3><span class="h3num">C</span>How to review recorded calls</h3>
+        <p>Score every recorded call 1–5 on five things, written down:</p>
+        <ol>
+          <li><strong>Tonality</strong> — calm and warm, or fast and nervous?</li>
+          <li><strong>Talk/listen ratio</strong> — you ~40%, them ~60%. If you're at 80%, you're pitching <em>at</em> them, not selling.</li>
+          <li><strong>Did you hit all 6 beats</strong>, or skip straight to pitching?</li>
+          <li><strong>Where exactly did you lose them?</strong> Timestamp it.</li>
+          <li><strong>Did you ask for the meeting</strong> — directly, with a specific time?</li>
+        </ol>
+        <p class="muted">Track scores in a sheet. Look for the <em>pattern</em> across calls, not perfection on one. Most beginners lose at beat 5 — they pitch features and forget to ask for the meeting.</p>
+
+        <div class="callout heat">
+          <div class="ct">Compliance — not optional</div>
+          <p>Virginia is one-party consent, so you can record your own calls — but you'll dial other states, and several (CA, FL, IL, PA…) require <em>all</em> parties to consent. Safest universal habit: open recorded calls with "…and just so you know, I record my calls for training." It also makes you sound established. Scrub your list against the National DNC Registry; B2B-to-business-line calls have more latitude, but cell numbers and sole proprietors are a gray zone. Getting this wrong is expensive — confirm the current rules for the states you call.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== 03 EXECUTION ====================== -->
+    <section class="page" data-page="block3">
+      <div class="wrap">
+        <div class="eyebrow">Block 03 · Days 15+</div>
+        <h2 class="title">The Execution Routine</h2>
+        <p class="lede">Now it's a numbers machine. Control your <em>inputs</em> obsessively and let the outputs follow.</p>
+
+        <h3><span class="h3num">A</span>Daily dial volume</h3>
+        <div class="stats" style="margin-top:14px">
+          <div class="stat"><div class="n">80–100</div><div class="l">Days 15–21</div></div>
+          <div class="stat"><div class="n">120–150</div><div class="l">Week 4+</div></div>
+          <div class="stat"><div class="n">150–200+</div><div class="l">Elite cruising</div></div>
+          <div class="stat"><div class="n">2×90m</div><div class="l">Power hours, batched</div></div>
+        </div>
+        <p>You hit these by <strong>batching</strong>. Scattered dialing kills volume. Block two 90-minute power hours (mid-morning ~10am, late afternoon ~4–5pm) where you do nothing but dial back-to-back — no email, no breaks between calls, list already loaded.</p>
+
+        <h3><span class="h3num">B</span>The metrics funnel — track daily</h3>
+        <div class="funnel" style="margin:20px 0">
+          <div class="fh"><span>TRACK EVERY DAY, NO EXCEPTIONS</span><span>DIAGNOSIS</span></div>
+          <div class="frow"><div class="bar b1">DIALS</div><div class="meta">your input</div></div>
+          <div class="frow"><div class="bar b2">CONNECTS</div><div class="meta">low? → list / call times wrong</div></div>
+          <div class="frow"><div class="bar b3">PITCHES</div><div class="meta">low? → opener is weak</div></div>
+          <div class="frow"><div class="bar b4">MEETINGS</div><div class="meta">low? → micro-offer is weak</div></div>
+          <div class="frow"><div class="bar b5">CLOSES</div><div class="meta">low? → meeting-skill problem</div></div>
+        </div>
+        <p class="muted">Rough beginner benchmarks: ~15–25% of dials become connects · ~40–60% of connects let you pitch · ~10–20% of pitches book a meeting · booked meetings → closes climbs from ~15% to ~35%+ as your closing improves. Net reality: a beginner often dials <strong>200–400+ times for their first close.</strong> <em>Watch your ratios, not your feelings.</em></p>
+
+        <h3><span class="h3num">C</span>The funnel calculator</h3>
+        <p class="muted">Set your daily dials and your conversion rates to project the math. This is the whole job: a problem in arithmetic, not in feelings.</p>
+        <div class="calc" id="calc">
+          <div class="crow">
+            <label for="dials">Dials per day</label>
+            <input type="number" id="dials" value="100" min="0" max="400">
+          </div>
+          <div class="crow">
+            <label for="conn">Dial → Connect</label>
+            <input type="range" id="conn" min="5" max="40" value="20">
+            <span class="cval" id="connV">20%</span>
+          </div>
+          <div class="crow">
+            <label for="pit">Connect → Pitch</label>
+            <input type="range" id="pit" min="20" max="80" value="50">
+            <span class="cval" id="pitV">50%</span>
+          </div>
+          <div class="crow">
+            <label for="mtg">Pitch → Meeting</label>
+            <input type="range" id="mtg" min="5" max="30" value="15">
+            <span class="cval" id="mtgV">15%</span>
+          </div>
+          <div class="crow">
+            <label for="cls">Meeting → Close</label>
+            <input type="range" id="cls" min="10" max="50" value="25">
+            <span class="cval" id="clsV">25%</span>
+          </div>
+          <div class="calc-out">
+            <div class="co"><div class="cn" id="oMeet">—</div><div class="cl">Meetings / week (5 days)</div></div>
+            <div class="co win"><div class="cn" id="oClose">—</div><div class="cl">Closes / month (~22 days)</div></div>
+            <div class="co"><div class="cn" id="oDials">—</div><div class="cl">Dials per close</div></div>
+          </div>
+        </div>
+
+        <h3><span class="h3num">D</span>Managing fatigue &amp; rejection</h3>
+        <ul>
+          <li><strong>Track the input you control.</strong> Early on, your daily <em>win</em> is "100 dials," not "closed a deal." You can guarantee dials; you can't guarantee closes. Detaching progress from outcomes is the single biggest survival skill.</li>
+          <li><strong>Rejection is statistics, not judgment.</strong> If 1 in 8 connects books, every "no" walks you toward the yes — you <em>need</em> the no's to get there. Some callers tally no's, because more no's = closer to the next deal.</li>
+          <li><strong>Reset between calls.</strong> Stand up, shake it out for 5 seconds. Never carry the last call's energy into the next dial — the prospect hears a defeated voice in the first word.</li>
+          <li><strong>Protect the streak.</strong> The danger zone is the day after a rough day, when you "don't feel like dialing." That's the day that decides whether you make it. Hit the number even if every call is garbage.</li>
+          <li><strong>Weekly review, not daily spiraling.</strong> Variance is brutal day-to-day. Judge the week's ratios, not one bad afternoon.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ====================== 04 THE MEETING ====================== -->
+    <section class="page" data-page="meeting">
+      <div class="wrap">
+        <div class="eyebrow">Block 04 · The booked appointment</div>
+        <h2 class="title">Inside the 15-Minute Meeting</h2>
+        <p class="lede">The dial books the meeting. The meeting earns the money. This is the discovery-and-close conversation that turns "yes, 15 minutes" into money down — run it on a screen-share.</p>
+
+        <div class="callout">
+          <div class="ct">The golden rule of this call</div>
+          <p style="margin-bottom:0"><strong>Discovery is 70% of the win.</strong> Most beginners use the meeting to <em>present</em>. Elite closers use it to <em>interrogate</em>, gently — every number you pull out of their mouth becomes the price justification later. You don't sell the website. You make them describe the bleeding, then you describe the bandage.</p>
+        </div>
+
+        <h3><span class="h3num">↳</span>The 6-phase structure</h3>
+        <div class="beats">
+          <div class="beat"><div class="bn">0–1m</div><div><div class="bt">Re-frame &amp; agenda</div><div class="bd">Disarm, set the map, get a micro-yes. They showed up half-expecting a hard sell — defuse it.</div></div></div>
+          <div class="beat"><div class="bn">1–6m</div><div><div class="bt">Discovery</div><div class="bd">Ask, don't tell. Find the pain, quantify it in <em>their</em> numbers. This is where the deal is won.</div></div></div>
+          <div class="beat"><div class="bn">6–10m</div><div><div class="bt">The reveal</div><div class="bd">Share screen. Show the gap — their Google result, their site on mobile, the competitor who outranks them.</div></div></div>
+          <div class="beat"><div class="bn">10–11m</div><div><div class="bt">Tie to money</div><div class="bd">Convert what you found into their ROI math, using the numbers they gave you in discovery.</div></div></div>
+          <div class="beat"><div class="bn">11–13m</div><div><div class="bt">Present + price</div><div class="bd">Three options, anchor high, recommend the middle — then stop talking.</div></div></div>
+          <div class="beat"><div class="bn">13–15m</div><div><div class="bt">Close + lock</div><div class="bd">Assumptive close, handle final resistance, lock with a deposit and a kickoff date. A verbal yes is not a close.</div></div></div>
+        </div>
+
+        <h3><span class="h3num">1</span>Re-frame &amp; agenda</h3>
+        <div class="script">
+          <div class="script-head"><span class="st">Open the meeting — disarm + map</span><span class="rec">REC</span></div>
+          <div class="script-body">
+            <div class="line you"><span class="who">YOU</span><span class="say">"Mike, appreciate the 15 minutes. Here's how I'll use it so I don't waste yours: first I'll ask you a couple quick questions about how you get customers right now — because what I show you only matters if it fits your business. Then I'll share my screen and walk you through what I found and what your top competitor's doing. At the end, if it makes sense, I'll show you exactly what it'd take to fix it. If it doesn't, no hard feelings. Sound fair?"</span></div>
+            <div class="line them"><span class="who">THEM</span><span class="say">"Yeah, that works."</span></div>
+          </div>
+          <div class="script-note">You just got a micro-yes to the whole structure, including "I'll show you what it'd take to fix it" — so when you name a price later, it's not a surprise ambush, it's the agenda they already agreed to.</div>
+        </div>
+
+        <h3><span class="h3num">2</span>Discovery — the heart of the call</h3>
+        <p>Ask, listen, write down the numbers. You're hunting two things: <strong>the pain</strong> (what's broken / what they're losing) and <strong>the value of a customer</strong> (so the price prices itself later). Talk 30%, let them talk 70%.</p>
+        <div class="script">
+          <div class="script-head"><span class="st">Discovery question sequence</span><span class="rec">REC</span></div>
+          <div class="script-body">
+            <div class="line you"><span class="who">YOU</span><span class="say">"Before I show you anything — walk me through how you get customers right now."</span></div>
+            <div class="line you"><span class="who">YOU</span><span class="say">"Roughly what split is word-of-mouth versus people finding you online?"</span></div>
+            <div class="line you"><span class="who">YOU</span><span class="say">"What's one new [job / customer / patient] worth to you on average?"</span></div>
+            <div class="line cue"><span class="who">NOTE</span><span class="say">Write this number down. It is the entire pricing conversation.</span></div>
+            <div class="line you"><span class="who">YOU</span><span class="say">"And how many of those are you doing in a typical month right now?"</span></div>
+            <div class="line you"><span class="who">YOU</span><span class="say">"If I could reliably add even 3 to 5 of those a month, what would that do for you?"</span></div>
+            <div class="line you"><span class="who">YOU</span><span class="say">"Have you ever tried anything with your website or online before? How'd it go?"</span></div>
+            <div class="line you"><span class="who">YOU</span><span class="say">"Other than you, is anyone else part of a decision like this?"</span></div>
+            <div class="line cue"><span class="who">NOTE</span><span class="say">Find the real decision-maker now — a hidden spouse/partner kills more closes than price does.</span></div>
+          </div>
+          <div class="script-note">Every answer is ammunition. "A job's worth $600 and I do about 20 a month, mostly word of mouth, and yeah I'd love more" — you now know the exact ROI math and that online is a wide-open gap. You haven't pitched a thing yet and you've already won.</div>
+        </div>
+
+        <div class="callout">
+          <div class="ct">The pre-close (ask this before you reveal anything)</div>
+          <p style="margin-bottom:0"><span style="font-family:var(--mono);font-size:11px;color:var(--brass)">YOU ▸</span> "Last question before I show you — if I walk you through this and the fix makes sense, <em>and</em> the money works for what it brings you, is there any reason you wouldn't want to move forward?" If they say "no reason," you've removed their escape hatch. If they surface something ("I'd need to ask my wife"), you just found the real objection early — fix it now, not at the close.</p>
+        </div>
+
+        <h3><span class="h3num">3</span>The reveal — show, don't tell</h3>
+        <p>Share your screen. Walking them through it on screen lands 10× harder than describing it. The order:</p>
+        <ol>
+          <li><strong>Their Google result</strong> — search "[their service] in [town]" live. Show that they're buried or missing while a competitor sits at the top.</li>
+          <li><strong>Their site on mobile</strong> — pull it up on a phone-width view. Show what breaks, what loads slow, what looks dated.</li>
+          <li><strong>The competitor, side-by-side</strong> — the one outranking them. "This is who's catching the customers you're not."</li>
+        </ol>
+        <div class="script">
+          <div class="script-head"><span class="st">Narrating the reveal</span><span class="rec">REC</span></div>
+          <div class="script-body">
+            <div class="line you"><span class="who">YOU</span><span class="say">"Okay, sharing my screen. So I searched '[plumber in town]' the way a customer would. Here's page one — and you're… not on it. This guy is. Now watch — here's your site on a phone. See how the menu's cut off and it took eight seconds to load? Most people leave after three. So even the folks who do find you are bouncing. That's the gap I called you about."</span></div>
+          </div>
+          <div class="script-note">Let silence do the work after the reveal. Don't rush to rescue them. The discomfort of seeing it themselves is what creates urgency — you're a guide pointing at the wound, not a salesperson talking over it.</div>
+        </div>
+
+        <h3><span class="h3num">4</span>Tie it to money</h3>
+        <div class="script">
+          <div class="script-head"><span class="st">Convert findings to their ROI</span><span class="rec">REC</span></div>
+          <div class="script-body">
+            <div class="line you"><span class="who">YOU</span><span class="say">"So you told me a job's worth about $600 and you do roughly 20 a month, mostly word of mouth. Right now you're basically invisible to everyone googling at the exact moment they need a plumber — and that's the highest-intent customer there is, because they need it <em>now</em>. If we just captured a handful of those a month, that's a few thousand dollars in work you're currently handing to that other guy. Every single month."</span></div>
+          </div>
+          <div class="script-note">You're using only the numbers <em>they</em> gave you. They can't argue with their own math. This is why discovery comes first — by now the price is going to feel small against the loss you just quantified.</div>
+        </div>
+
+        <h3><span class="h3num">5–6</span>Present, price &amp; close</h3>
+        <p>Move straight into three options. <strong>Anchor high, recommend the middle, then go silent.</strong> The full pricing mechanics — tiers, recurring revenue, payment plans — live on the <a href="#" data-jump="pricing">Pricing Playbook</a>. The close itself:</p>
+        <div class="script">
+          <div class="script-head"><span class="st">Present price → assumptive close</span><span class="rec">REC</span></div>
+          <div class="script-body">
+            <div class="line you"><span class="who">YOU</span><span class="say">"So I've got three ways to fix this. The Growth Engine — fully custom, built to dominate that search — runs around $8,000. Most owners in your spot go with the Lead Machine, which fixes everything we just looked at and is built to make the phone ring, at $3,500. And there's a lean Get-Found starter at $1,800 if you just want to stop the bleeding. For where you are, I'd put you on the Lead Machine."</span></div>
+            <div class="line cue"><span class="who">NOTE</span><span class="say">Now STOP. The first person to talk after the price loses. Let it sit, even if it's awkward.</span></div>
+            <div class="line them"><span class="who">THEM</span><span class="say">"…okay, yeah, the middle one makes sense."</span></div>
+            <div class="line you"><span class="who">YOU</span><span class="say">"Perfect — that's the one I'd have picked for you. To lock your spot in my build schedule I take a 50% deposit to start, balance on launch. I can get you a kickoff this week. Want to grab Thursday or would early next week be easier?"</span></div>
+          </div>
+          <div class="script-note">Two moves close it: the <em>alternative-choice</em> ("Thursday or next week," never "do you want to?") and the <em>deposit lock</em>. A verbal yes is not a sale — money down plus a date on the calendar is. Always end on a scheduling question, never an open one.</div>
+        </div>
+
+        <h3><span class="h3num">↳</span>Final objections at the table</h3>
+        <div class="grid2">
+          <div class="card"><h4 style="margin-top:0">"I need to think about it."</h4><p class="muted" style="margin-bottom:0">Isolate the real concern. <span style="color:var(--brass)">YOU ▸</span> "Totally — what specifically do you want to think through? Is it the money, the timing, or whether it'll actually work?" Whatever they name is the <em>only</em> real objection. Handle that one.</p></div>
+          <div class="card"><h4 style="margin-top:0">"I need to talk to my partner."</h4><p class="muted" style="margin-bottom:0">Don't let it drift. <span style="color:var(--brass)">YOU ▸</span> "Makes sense. Let's get the three of us on a quick 10-minute call so they can ask me anything directly — beats it getting lost in translation. Tomorrow or Friday?"</p></div>
+          <div class="card"><h4 style="margin-top:0">"Can you do it cheaper?"</h4><p class="muted" style="margin-bottom:0">Trade scope, never just discount. <span style="color:var(--brass)">YOU ▸</span> "I can — if we trim it down. We could drop X and Y to land closer to your number. Want to do that, or keep it whole and split it into payments?"</p></div>
+          <div class="card"><h4 style="margin-top:0">"That's more than I expected."</h4><p class="muted" style="margin-bottom:0">Re-anchor to the loss. <span style="color:var(--brass)">YOU ▸</span> "I get it. But you told me one job's worth $600 — this pays for itself at six jobs and then runs for years. We can also split it across three payments so it's easier on cash flow."</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== 05 PRICING ====================== -->
+    <section class="page" data-page="pricing">
+      <div class="wrap">
+        <div class="eyebrow">Block 05 · The money</div>
+        <h2 class="title">Pricing Without Flinching</h2>
+        <p class="lede">How to price web design for SMBs so the number lands soft, the middle tier sells itself, and you build recurring income — not a one-off invoice.</p>
+
+        <div class="callout heat">
+          <div class="ct">Market reality first</div>
+          <p style="margin-bottom:0">The numbers below are realistic mid-market SMB figures for a solo/small operator in the US — but they vary heavily by region, niche, and your portfolio. Early on, price toward the lower end to bank wins and testimonials; raise prices as your proof stacks. Treat these as anchors to adjust, not gospel.</p>
+        </div>
+
+        <h3><span class="h3num">A</span>The seven rules</h3>
+        <ol>
+          <li><strong>Anchor to ROI, never to hours.</strong> Price the outcome (more customers), not your labor. The second you price by the hour, you cap your income and invite them to scrutinize every minute.</li>
+          <li><strong>Always present three tiers.</strong> The high tier makes the middle look reasonable; the low tier gives the cautious somewhere to land. This single move — anchor, target, floor — is the biggest pricing lever you have.</li>
+          <li><strong>Recommend the middle.</strong> Don't make them choose in a vacuum. Tell them where you'd put them. Most will follow.</li>
+          <li><strong>Never lead with price.</strong> Lead with the ROI math you built in discovery. Price lands soft <em>after</em> value is established and hard before it.</li>
+          <li><strong>Break sticker shock into "cost per X."</strong> "$3,500 ÷ a $600 job = it pays for itself at six jobs, then runs for years."</li>
+          <li><strong>Never discount — trade scope.</strong> Dropping the price the moment they push teaches them the price was fake. If they need a lower number, <em>remove something.</em></li>
+          <li><strong>Sell the build to get the client; sell the retainer to keep the income.</strong> Recurring revenue is the actual business (see C).</li>
+        </ol>
+
+        <h3><span class="h3num">B</span>The three-tier menu</h3>
+        <div class="tiers">
+          <div class="tier">
+            <div class="tname">Get Found</div>
+            <div class="tsub">Starter · Floor</div>
+            <div class="price">$1,500–2,500</div>
+            <div class="punit">one-time build</div>
+            <ul>
+              <li>3–5 page mobile-friendly site</li>
+              <li>Google Business Profile optimization</li>
+              <li>Click-to-call + map</li>
+              <li>Basic contact form</li>
+            </ul>
+            <div class="who-for">For: the smallest shops / tightest budgets. Partly a decoy that makes the middle obvious.</div>
+          </div>
+          <div class="tier rec">
+            <div class="tname">Lead Machine</div>
+            <div class="tsub">Recommended · Target</div>
+            <div class="price">$3,000–5,000</div>
+            <div class="punit">one-time build</div>
+            <ul>
+              <li>Everything in Get Found</li>
+              <li>Lead-capture forms + tracking</li>
+              <li>Basic SEO setup</li>
+              <li>Reviews integration</li>
+              <li>Extra pages + faster load</li>
+            </ul>
+            <div class="who-for">For: most SMBs. This is where you steer the majority. Fixes everything the audit exposed.</div>
+          </div>
+          <div class="tier">
+            <div class="tname">Growth Engine</div>
+            <div class="tsub">Premium · Anchor</div>
+            <div class="price">$6,000–10,000+</div>
+            <div class="punit">one-time build</div>
+            <ul>
+              <li>Fully custom design + copywriting</li>
+              <li>Advanced SEO</li>
+              <li>Booking / e-commerce</li>
+              <li>Ongoing optimization</li>
+            </ul>
+            <div class="who-for">For: ambitious owners. Mostly an anchor — but some will take it, and those are your best clients.</div>
+          </div>
+        </div>
+
+        <h3><span class="h3num">C</span>The care plan — your actual business</h3>
+        <p>The build is a one-time cheque. The <strong>care plan</strong> is what makes this a real income. Attach a monthly plan to <em>every</em> client.</p>
+        <div class="card">
+          <h4 style="margin-top:0">Care Plan · $75–300/mo (recurring)</h4>
+          <p class="muted" style="margin-bottom:8px">Hosting, security, backups, monthly edits, and a simple "here's what your site did this month" report.</p>
+          <div class="script" style="margin-bottom:0">
+            <div class="script-head"><span class="st">Pitching the care plan</span><span class="rec">REC</span></div>
+            <div class="script-body">
+              <div class="line you"><span class="who">YOU</span><span class="say">"One more thing — a site isn't a 'build it and forget it.' It needs hosting, security, and updates, or it goes stale and slips down Google. My care plan handles all of that plus any edits you need, for $150 a month. Most clients take it so they never have to think about it. Want me to include it?"</span></div>
+            </div>
+            <div class="script-note">Twenty clients on a $150/mo plan = $36,000/year of recurring income before you dial a single new prospect. This is what turns cold-calling from a hustle into a business.</div>
+          </div>
+        </div>
+
+        <h3><span class="h3num">D</span>Structuring the payment</h3>
+        <ul>
+          <li><strong>Deposit + milestone, never full upfront or full-on-delivery.</strong> Standard SMB terms: <em>50% to start, 50% on launch.</em> The deposit is what actually locks the deal.</li>
+          <li><strong>Payment plans dissolve budget objections without discounting.</strong> Splitting $3,500 into 3 × ~$1,200 changes the psychology entirely — same total, far smaller "ouch."</li>
+          <li><strong>The deposit closes the sale.</strong> A verbal yes drifts. Card-on-file or invoice paid = committed. Always move to "let's get the deposit handled so I can lock your spot."</li>
+        </ul>
+
+        <h3><span class="h3num">E</span>Pricing mistakes that kill beginners</h3>
+        <div class="grid2">
+          <div class="callout heat" style="margin:8px 0"><div class="ct">✕ Pricing by the hour</div><p style="margin:0">Caps your income and invites a fight over every minute.</p></div>
+          <div class="callout heat" style="margin:8px 0"><div class="ct">✕ Quoting one number</div><p style="margin:0">No anchor, feels arbitrary, trivially easy to reject.</p></div>
+          <div class="callout heat" style="margin:8px 0"><div class="ct">✕ Softening the price</div><p style="margin:0">"It's only…" and nervous laughter tell them it's negotiable.</p></div>
+          <div class="callout heat" style="margin:8px 0"><div class="ct">✕ Talking after the number</div><p style="margin:0">First to speak loses. State it, then shut up.</p></div>
+          <div class="callout heat" style="margin:8px 0"><div class="ct">✕ Discounting at first push</div><p style="margin:0">Trains them that your real price is lower. Trade scope instead.</p></div>
+          <div class="callout heat" style="margin:8px 0"><div class="ct">✕ Forgetting the retainer</div><p style="margin:0">You leave 80% of the lifetime value on the table.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== 06 SCRIPTS LIBRARY ====================== -->
+    <section class="page" data-page="scripts">
+      <div class="wrap">
+        <div class="eyebrow">Block 06 · Reference</div>
+        <h2 class="title">The Scripts Library</h2>
+        <p class="lede">Ready-to-use language for nearly every scenario you'll hit. All skeletons — adapt to the real problem you spotted, and never read them like a robot.</p>
+
+        <div class="libnav">
+          <a href="#sec-gate">Gatekeepers</a>
+          <a href="#sec-vm">Voicemails</a>
+          <a href="#sec-open">Openers</a>
+          <a href="#sec-obj">Objections ×16</a>
+          <a href="#sec-disc">Discovery</a>
+          <a href="#sec-close">Closes</a>
+          <a href="#sec-follow">Follow-ups</a>
+        </div>
+
+        <!-- GATEKEEPERS -->
+        <div class="libsec" id="sec-gate">
+          <p class="sec-label">Gatekeeper scripts</p>
+          <div class="script">
+            <div class="script-head"><span class="st">The peer assume</span><span class="rec">REC</span></div>
+            <div class="script-body">
+              <div class="line you"><span class="who">YOU</span><span class="say">"Hey — is Mike around?"</span></div>
+              <div class="line cue"><span class="who">CUE</span><span class="say">First name, casual, lower energy. Sound like you already know him.</span></div>
+            </div>
+            <div class="script-note">Insiders don't explain themselves. The more you over-justify, the more you sound like a vendor to be blocked.</div>
+          </div>
+          <div class="script">
+            <div class="script-head"><span class="st">The "regarding" deflection</span><span class="rec">REC</span></div>
+            <div class="script-body">
+              <div class="line them"><span class="who">THEM</span><span class="say">"What's this regarding?"</span></div>
+              <div class="line you"><span class="who">YOU</span><span class="say">"It's about his Google listing — I'll only need him for a second."</span></div>
+            </div>
+            <div class="script-note">Honest, specific, low-stakes. Never "I'm calling to sell him a website." Never lie either — gatekeepers remember.</div>
+          </div>
+          <div class="script">
+            <div class="script-head"><span class="st">Enlist the gatekeeper</span><span class="rec">REC</span></div>
+            <div class="script-body">
+              <div class="line you"><span class="who">YOU</span><span class="say">"Actually, maybe you can help me — who handles the website and the Google stuff over there? Is that Mike, or someone else?"</span></div>
+            </div>
+            <div class="script-note">People love being the one who knows. You get the right name <em>and</em> a softer transfer.</div>
+          </div>
+          <div class="script">
+            <div class="script-head"><span class="st">The callback-time fish</span><span class="rec">REC</span></div>
+            <div class="script-body">
+              <div class="line them"><span class="who">THEM</span><span class="say">"He's not in right now."</span></div>
+              <div class="line you"><span class="who">YOU</span><span class="say">"No worries — when's he usually easiest to catch, mornings or afternoons? I'll just try him back then."</span></div>
+            </div>
+            <div class="script-note">You leave with intel, not a dead end. Now you know exactly when the owner answers his own phone.</div>
+          </div>
+        </div>
+
+        <!-- VOICEMAILS -->
+        <div class="libsec" id="sec-vm">
+          <p class="sec-label">Voicemail scripts</p>
+          <div class="callout"><div class="ct">Rule</div><p style="margin:0">Keep it under 15 seconds, create one specific curiosity gap, and always say you'll try again. The VM's job isn't to sell — it's to make your callback name familiar.</p></div>
+          <div class="script">
+            <div class="script-head"><span class="st">Specific-problem VM</span><span class="rec">REC</span></div>
+            <div class="script-body">
+              <div class="line you"><span class="who">YOU</span><span class="say">"Hey Mike, it's [Name]. I was looking at your business on Google and noticed something costing you customers — figured you'd want to know. I'll try you back, or reach me at [number]. Talk soon."</span></div>
+            </div>
+          </div>
+          <div class="script">
+            <div class="script-head"><span class="st">Audit VM</span><span class="rec">REC</span></div>
+            <div class="script-body">
+              <div class="line you"><span class="who">YOU</span><span class="say">"Mike, [Name] here — I run a small web studio in the area and I already ran a quick audit on your online presence before calling. Found a couple things worth two minutes of your time. I'll try back tomorrow."</span></div>
+            </div>
+          </div>
+          <div class="script">
+            <div class="script-head"><span class="st">Second-attempt VM</span><span class="rec">REC</span></div>
+            <div class="script-body">
+              <div class="line you"><span class="who">YOU</span><span class="say">"Hey Mike, [Name] again — tried you Tuesday about that thing on your Google listing. Not going to keep bugging you, so if it's worth a look, shoot me a text back at [number]. Either way, take care."</span></div>
+            </div>
+            <div class="script-note">The soft "not going to keep bugging you" lowers pressure and often earns the callback you were chasing.</div>
+          </div>
+        </div>
+
+        <!-- OPENERS -->
+        <div class="libsec" id="sec-open">
+          <p class="sec-label">Openers</p>
+          <div class="script">
+            <div class="script-head"><span class="st">Honest interrupt (direct volume)</span><span class="rec">REC</span></div>
+            <div class="script-body">
+              <div class="line you"><span class="who">YOU</span><span class="say">"Hey Mike — full disclosure, this is a cold call. You can hang up, or give me 30 seconds and decide if it's worth it. Fair?"</span></div>
+            </div>
+          </div>
+          <div class="script">
+            <div class="script-head"><span class="st">Value-first / audit</span><span class="rec">REC</span></div>
+            <div class="script-body">
+              <div class="line you"><span class="who">YOU</span><span class="say">"Mike, quick one — I run a web studio here and I've been doing free audits for [dentists] in [town]. I already ran one on yours before calling and found a couple things costing you patients. No charge, no catch — want me to walk you through them?"</span></div>
+            </div>
+          </div>
+          <div class="script">
+            <div class="script-head"><span class="st">Problem-led pattern interrupt</span><span class="rec">REC</span></div>
+            <div class="script-body">
+              <div class="line you"><span class="who">YOU</span><span class="say">"Hey Mike — random question: did you know your website doesn't load on a phone right now? I noticed it pulling up [roofers] in [town] and figured you'd want to know."</span></div>
+            </div>
+            <div class="script-note">Opening with a real problem (not a pitch) flips them from defense to curiosity. Only works if the problem is true and specific.</div>
+          </div>
+          <div class="script">
+            <div class="script-head"><span class="st">Social proof / referral lever</span><span class="rec">REC</span></div>
+            <div class="script-body">
+              <div class="line you"><span class="who">YOU</span><span class="say">"Mike, [Name] here — I built [a business he might know]'s site, which is how I got into doing these for local owners. Yours came up while I was poking around, and there's a quick fix worth showing you."</span></div>
+            </div>
+          </div>
+          <div class="script">
+            <div class="script-head"><span class="st">Pure-permission (soft)</span><span class="rec">REC</span></div>
+            <div class="script-body">
+              <div class="line you"><span class="who">YOU</span><span class="say">"Hey Mike, you don't know me — mind if I take 20 seconds to tell you why I called, and you can tell me to get lost if it's not for you?"</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- OBJECTIONS -->
+        <div class="libsec" id="sec-obj">
+          <p class="sec-label">Objection bank · 16 responses</p>
+          <p class="muted">Universal rule: don't argue — ask a question that reframes. Each below is the reflex line; adapt to their words.</p>
+
+          <div class="obj"><div class="oh"><span class="tag">01</span><span class="q">"We already have a website."</span></div><div class="ob"><div class="reframe">Have one → is it working</div><div class="resp"><span class="you-tag">YOU</span>"That's why I called — when's the last time it brought you a customer? Pull it up on your phone real quick… does it look right? Most owners haven't seen their own site on a phone in years, and that's where most customers are."</div></div></div>
+
+          <div class="obj"><div class="oh"><span class="tag">02</span><span class="q">"We don't need a website."</span></div><div class="ob"><div class="reframe">Picture the customer who left</div><div class="resp"><span class="you-tag">YOU</span>"Fair — but when someone hears about you and wants to check you out before calling, where do they look? They google you. Right now they find [nothing / a dead Facebook page] — and your competitor catches them."</div></div></div>
+
+          <div class="obj"><div class="oh"><span class="tag">03</span><span class="q">"We don't have the budget."</span></div><div class="ob"><div class="reframe">Budget objection = value not built yet</div><div class="resp"><span class="you-tag">YOU</span>"I'd never ask you to spend on something that doesn't pay you back. What's one new job worth to you? If a site brought even two of those a month, would the math work? That's all I want to show you."</div></div></div>
+
+          <div class="obj"><div class="oh"><span class="tag">04</span><span class="q">"Just send me an email."</span></div><div class="ob"><div class="reframe">90% a brush-off → micro-commitment</div><div class="resp"><span class="you-tag">YOU</span>"Happy to — but your inbox has 40 unread and mine becomes 41. Give me 10 minutes Thursday, I'll screen-share exactly what I found, and if it's useless you never hear from me. 9 or 11 better?"</div></div></div>
+
+          <div class="obj"><div class="oh"><span class="tag">05</span><span class="q">"Not interested." (instant)</span></div><div class="ob"><div class="reframe">Don't fight — disarm with agreement</div><div class="resp"><span class="you-tag">YOU</span>"Totally fair, you don't even know what I'm calling about yet. Ten seconds and if it's not for you, hang up on me — deal? I noticed [specific problem] on your listing…"</div></div></div>
+
+          <div class="obj"><div class="oh"><span class="tag">06</span><span class="q">"I'm too busy right now."</span></div><div class="ob"><div class="reframe">Respect it → pin a real time</div><div class="resp"><span class="you-tag">YOU</span>"Totally get it, you're running a business. I'll be quick — better to grab you later today or first thing tomorrow? I just want to show you one thing that's costing you calls."</div></div></div>
+
+          <div class="obj"><div class="oh"><span class="tag">07</span><span class="q">"I'm happy with my current guy."</span></div><div class="ob"><div class="reframe">Don't attack them → raise the bar</div><div class="resp"><span class="you-tag">YOU</span>"Good — you should keep someone who's getting results. Quick gut-check though: is your phone ringing more because of the site, or about the same? If it's about the same, that's worth 15 minutes. If it's ringing, ignore me."</div></div></div>
+
+          <div class="obj"><div class="oh"><span class="tag">08</span><span class="q">"Call me back next month/quarter."</span></div><div class="ob"><div class="reframe">Soft no → calendar it concretely</div><div class="resp"><span class="you-tag">YOU</span>"Done — what's actually changing next month that makes it better timing? … Got it. I'll put a note to call you the first week. Meanwhile, every week you're live like this, [competitor] keeps catching those customers."</div></div></div>
+
+          <div class="obj"><div class="oh"><span class="tag">09</span><span class="q">"How much does it cost?" (too early)</span></div><div class="ob"><div class="reframe">Don't quote blind → defer to value</div><div class="resp"><span class="you-tag">YOU</span>"Honest answer — it depends on what's actually costing you customers, and I don't know that yet. Give me 15 minutes to look properly and I'll show you exactly what it'd take. I'm not going to throw a random number at you."</div></div></div>
+
+          <div class="obj"><div class="oh"><span class="tag">10</span><span class="q">"How did you get my number?"</span></div><div class="ob"><div class="reframe">Be transparent → pivot fast</div><div class="resp"><span class="you-tag">YOU</span>"It's right on your Google Business listing — which is actually what I called about. While I was on it I noticed [problem]…"</div></div></div>
+
+          <div class="obj"><div class="oh"><span class="tag">11</span><span class="q">"Is this a sales pitch?"</span></div><div class="ob"><div class="reframe">Own it → reframe to value</div><div class="resp"><span class="you-tag">YOU</span>"Eventually, sure — if it makes sense for you. But right now it's just me telling you about a problem on your listing that's sending customers to a competitor. You can do whatever you want with that."</div></div></div>
+
+          <div class="obj"><div class="oh"><span class="tag">12</span><span class="q">"I'll think about it."</span></div><div class="ob"><div class="reframe">Isolate the real concern</div><div class="resp"><span class="you-tag">YOU</span>"Of course — what specifically do you want to think through? The money, the timing, or whether it'll actually work? Let's knock that one out now so you're not chewing on it."</div></div></div>
+
+          <div class="obj"><div class="oh"><span class="tag">13</span><span class="q">"My nephew/kid builds sites."</span></div><div class="ob"><div class="reframe">Don't insult them → contrast outcomes</div><div class="resp"><span class="you-tag">YOU</span>"That's great, keep that relationship. Different thing though — is he building you something that actually shows up on Google and turns visitors into phone calls, or just something that looks nice? Those are two very different jobs. Worth a look either way."</div></div></div>
+
+          <div class="obj"><div class="oh"><span class="tag">14</span><span class="q">"All my business is word of mouth."</span></div><div class="ob"><div class="reframe">Validate → expose the leak</div><div class="resp"><span class="you-tag">YOU</span>"That's the best kind — and it's exactly why this matters. When someone refers you, the first thing that person does is google you to check you out. Right now what they find makes you look smaller than you are. You're losing warm referrals at the last step."</div></div></div>
+
+          <div class="obj"><div class="oh"><span class="tag">15</span><span class="q">"Just text me the info."</span></div><div class="ob"><div class="reframe">Convert to a tiny live commitment</div><div class="resp"><span class="you-tag">YOU</span>"Can do — but the whole point is showing you on screen, a text won't land it. Give me literally 10 minutes and you'll actually see the problem. I'll text you the calendar link right after — what's a good window tomorrow?"</div></div></div>
+
+          <div class="obj"><div class="oh"><span class="tag">16</span><span class="q">"We tried a website before, it didn't work."</span></div><div class="ob"><div class="reframe">Agree → separate 'a site' from 'a working site'</div><div class="resp"><span class="you-tag">YOU</span>"Yeah — most don't, because they're built to look pretty, not to get found and make the phone ring. Totally different approach. What'd you have before, and what were you hoping it'd do? Let me show you why it probably didn't and what actually moves the needle."</div></div></div>
+        </div>
+
+        <!-- DISCOVERY -->
+        <div class="libsec" id="sec-disc">
+          <p class="sec-label">Discovery question bank</p>
+          <div class="script">
+            <div class="script-head"><span class="st">For the meeting — ask, write down numbers</span><span class="rec">REC</span></div>
+            <div class="script-body">
+              <div class="line you"><span class="who">YOU</span><span class="say">"Walk me through how you get customers right now."</span></div>
+              <div class="line you"><span class="who">YOU</span><span class="say">"What split is word-of-mouth versus people finding you online?"</span></div>
+              <div class="line you"><span class="who">YOU</span><span class="say">"What's one new [job/customer/patient] worth to you on average?"</span></div>
+              <div class="line you"><span class="who">YOU</span><span class="say">"How many of those do you do in a typical month?"</span></div>
+              <div class="line you"><span class="who">YOU</span><span class="say">"If I added 3–5 of those a month, what would that mean for you?"</span></div>
+              <div class="line you"><span class="who">YOU</span><span class="say">"Ever tried anything with your website before? How'd it go?"</span></div>
+              <div class="line you"><span class="who">YOU</span><span class="say">"A year from now, what's the number you're chasing?"</span></div>
+              <div class="line you"><span class="who">YOU</span><span class="say">"Other than you, who else is part of a decision like this?"</span></div>
+              <div class="line you"><span class="who">YOU</span><span class="say">"On a scale of 'this is fine' to 'this is costing me' — where's your website right now?"</span></div>
+            </div>
+            <div class="script-note">The job-value number and the decision-maker question are the two that matter most. The first prices the deal; the second saves the close.</div>
+          </div>
+        </div>
+
+        <!-- CLOSES -->
+        <div class="libsec" id="sec-close">
+          <p class="sec-label">Closing lines</p>
+          <div class="grid2">
+            <div class="card"><h4 style="margin-top:0">Alternative-choice</h4><p class="muted" style="margin-bottom:0"><span style="color:var(--brass)">YOU ▸</span> "Want to grab Thursday, or is early next week easier?" Never "do you want to?" — give two yeses to choose between.</p></div>
+            <div class="card"><h4 style="margin-top:0">Assumptive</h4><p class="muted" style="margin-bottom:0"><span style="color:var(--brass)">YOU ▸</span> "Perfect — I'll take a 50% deposit to lock your spot and we'll kick off this week." Act like it's already decided.</p></div>
+            <div class="card"><h4 style="margin-top:0">Summary close</h4><p class="muted" style="margin-bottom:0"><span style="color:var(--brass)">YOU ▸</span> "So: you're invisible on Google, losing jobs to [competitor], a job's worth $600 to you — and this fixes all of it and pays for itself in six. Makes sense to start, right?"</p></div>
+            <div class="card"><h4 style="margin-top:0">Pre-close (de-risk early)</h4><p class="muted" style="margin-bottom:0"><span style="color:var(--brass)">YOU ▸</span> "If the fix makes sense and the money works, any reason you wouldn't move forward?" Surfaces the real objection before you pitch.</p></div>
+            <div class="card"><h4 style="margin-top:0">The silence close</h4><p class="muted" style="margin-bottom:0">State the price. Then say <em>nothing.</em> First to talk loses. The pause does more work than any line you could add.</p></div>
+            <div class="card"><h4 style="margin-top:0">Deposit lock</h4><p class="muted" style="margin-bottom:0"><span style="color:var(--brass)">YOU ▸</span> "Let's get the deposit handled so I can lock you into my build schedule — card, or you want an invoice?" A verbal yes isn't a close; money is.</p></div>
+          </div>
+        </div>
+
+        <!-- FOLLOW-UPS -->
+        <div class="libsec" id="sec-follow">
+          <p class="sec-label">Follow-up scripts</p>
+          <div class="callout"><div class="ct">Mindset</div><p style="margin:0">"Send me an email" and "call me next quarter" are not dead ends — they're a pipeline. Most SMB closes land on the 2nd–4th touch. The caller who follows up systematically beats the one who only chases fresh leads.</p></div>
+
+          <div class="script">
+            <div class="script-head"><span class="st">Call-back after "send me an email"</span><span class="rec">REC</span></div>
+            <div class="script-body">
+              <div class="line you"><span class="who">YOU</span><span class="say">"Hey Mike — [Name], I sent that email Tuesday about your site. Didn't want it to get buried, so I figured I'd just grab you for two minutes. Got a sec?"</span></div>
+            </div>
+            <div class="script-note">The email was always the setup for this call. Set a reminder the moment they ask for one.</div>
+          </div>
+          <div class="script">
+            <div class="script-head"><span class="st">The follow-up email (short)</span><span class="rec">REC</span></div>
+            <div class="script-body">
+              <div class="line you"><span class="who">YOU</span><span class="say">Subject: the thing costing you customers</span></div>
+              <div class="line you"><span class="who">YOU</span><span class="say">"Mike — quick recap of what I spotted: your site doesn't load on mobile and you're not showing up for '[service] in [town]', where [competitor] is #1. 15 minutes and I'll show you exactly what to fix. Here's my calendar: [link]. — [Name]"</span></div>
+            </div>
+            <div class="script-note">Three sentences max. The email's job is to get the meeting, not to make the pitch.</div>
+          </div>
+          <div class="script">
+            <div class="script-head"><span class="st">No-show reschedule</span><span class="rec">REC</span></div>
+            <div class="script-body">
+              <div class="line you"><span class="who">YOU</span><span class="say">"Hey Mike, [Name] — looks like we got our wires crossed for our call. No worries, happens. I blocked the time anyway, so I can do it now, or want to grab tomorrow morning instead?"</span></div>
+            </div>
+            <div class="script-note">No guilt, no "you missed our meeting." Stay warm and make rebooking effortless.</div>
+          </div>
+          <div class="script">
+            <div class="script-head"><span class="st">"Circle back next quarter" callback</span><span class="rec">REC</span></div>
+            <div class="script-body">
+              <div class="line you"><span class="who">YOU</span><span class="say">"Mike, [Name] — you told me to check back around now, so here I am, true to my word. Still want to fix that website situation, or has it sorted itself out?"</span></div>
+            </div>
+            <div class="script-note">Showing up exactly when you said builds more trust than the pitch itself. Most callers never do.</div>
+          </div>
+          <div class="script">
+            <div class="script-head"><span class="st">"You went quiet" re-engage</span><span class="rec">REC</span></div>
+            <div class="script-body">
+              <div class="line you"><span class="who">YOU</span><span class="say">"Hey Mike — we talked a couple weeks back and you went a bit quiet, which usually means one of three things: it's not a priority, the timing's off, or something about the money felt off. Totally fine either way — just let me know which so I stop chasing the wrong thing."</span></div>
+            </div>
+            <div class="script-note">Naming the three reasons makes it easy and low-pressure to reply honestly — and often restarts the deal.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="foot">THE DIAL ROOM · Operator's Manual · Win the input, detach from the output.</div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+  var nav = document.getElementById('nav');
+  var pages = Array.prototype.slice.call(document.querySelectorAll('main .page'));
+  var navLinks = Array.prototype.slice.call(nav.querySelectorAll('a'));
+  var sidebar = document.getElementById('sidebar');
+  var scrim = document.getElementById('scrim');
+  var menuBtn = document.getElementById('menuBtn');
+
+  function show(name){
+    pages.forEach(function(p){ p.classList.toggle('active', p.getAttribute('data-page')===name); });
+    navLinks.forEach(function(a){ a.classList.toggle('active', a.getAttribute('data-page')===name); });
+    window.scrollTo({top:0,left:0,behavior:'auto'});
+    closeMenu();
+  }
+  nav.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if(!a) return;
+    e.preventDefault(); show(a.getAttribute('data-page'));
+  });
+  // in-content jump links
+  document.querySelectorAll('[data-jump]').forEach(function(el){
+    el.addEventListener('click', function(e){ e.preventDefault(); show(el.getAttribute('data-jump')); });
+  });
+
+  function openMenu(){ sidebar.classList.add('open'); scrim.classList.add('open'); }
+  function closeMenu(){ sidebar.classList.remove('open'); scrim.classList.remove('open'); }
+  if(menuBtn){ menuBtn.addEventListener('click', openMenu); }
+  scrim.addEventListener('click', closeMenu);
+
+  /* ---- Funnel calculator ---- */
+  var ids = ['dials','conn','pit','mtg','cls'];
+  var inputs = {};
+  ids.forEach(function(id){ inputs[id] = document.getElementById(id); });
+  function fmt(n){ return n.toLocaleString('en-US'); }
+  function calc(){
+    var dials = parseFloat(inputs.dials.value)||0;
+    var conn = parseFloat(inputs.conn.value)/100;
+    var pit = parseFloat(inputs.pit.value)/100;
+    var mtg = parseFloat(inputs.mtg.value)/100;
+    var cls = parseFloat(inputs.cls.value)/100;
+    document.getElementById('connV').textContent = inputs.conn.value+'%';
+    document.getElementById('pitV').textContent = inputs.pit.value+'%';
+    document.getElementById('mtgV').textContent = inputs.mtg.value+'%';
+    document.getElementById('clsV').textContent = inputs.cls.value+'%';
+
+    var meetingsPerDay = dials*conn*pit*mtg;
+    var meetingsWeek = meetingsPerDay*5;
+    var closesMonth = meetingsPerDay*cls*22;
+    var dialsPerClose = (conn*pit*mtg*cls)>0 ? Math.round(1/(conn*pit*mtg*cls)) : 0;
+
+    document.getElementById('oMeet').textContent = meetingsWeek.toFixed(1);
+    document.getElementById('oClose').textContent = closesMonth.toFixed(1);
+    document.getElementById('oDials').textContent = dialsPerClose ? fmt(dialsPerClose) : '—';
+  }
+  ids.forEach(function(id){
+    inputs[id].addEventListener('input', calc);
+  });
+  calc();
+})();
+</script>
+</body>
+</html>
